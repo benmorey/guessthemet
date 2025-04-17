@@ -106,7 +106,7 @@ const App: React.FC = () => {
 
         <main>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/guessthemet" element={<HomePage />} />
             <Route path="/play" element={<GamePlay />} />
           </Routes>
         </main>
