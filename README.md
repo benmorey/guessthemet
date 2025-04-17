@@ -1,46 +1,124 @@
-# Getting Started with Create React App
+# Guess The Met 🎨
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fun and interactive game that challenges players to guess artworks from The Metropolitan Museum of Art's extensive collection. Test your art knowledge while learning about various masterpieces from one of the world's most prestigious museums.
 
-## Available Scripts
+## Project Description
 
-In the project directory, you can run:
+Guess The Met is a React-based web application that presents players with pixelated or partially obscured artworks from The Met's collection. Players must guess the correct artwork title from multiple options, with the image becoming clearer as they progress or when they guess correctly. The game features different difficulty levels and provides interesting art facts during loading screens.
 
-### `npm start`
+## Instructions to Run the Project
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. **Prerequisites**
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+   - Node.js (v14 or higher)
+   - npm or yarn package manager
 
-### `npm test`
+2. **Installation**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+   ```bash
+   # Clone the repository
+   git clone [your-repository-url]
 
-### `npm run build`
+   # Navigate to the project directory
+   cd guessthemet
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+   # Install dependencies
+   npm install
+   # or
+   yarn install
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. **Running the Project**
+   ```bash
+   # Start the development server
+   npm start
+   # or
+   yarn start
+   ```
+   The application will be available at `http://localhost:3000`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## API Integration
 
-### `npm run eject`
+The project uses The Metropolitan Museum of Art Collection API:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- **Base URL**: `https://collectionapi.metmuseum.org/public/collection/v1`
+- **API Documentation**: [The Met Collection API](https://metmuseum.github.io/)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Data Handling
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- Artwork data is fetched dynamically using the Met's public API
+- Search parameters can be customized based on:
+  - Medium
+  - Geographic location
+  - Time period
+- Images are preloaded to ensure smooth gameplay
+- The API is rate-limited and free to use, which is reflected in the loading screen messaging
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Features
 
-## Learn More
+### Core Gameplay
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Multiple choice artwork guessing game
+- Progressive difficulty levels
+- Score tracking system
+- Lives system
+- Pixelated image reveal system
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Visual Features
+
+- Responsive design with side-by-side layout for larger screens
+- Met-themed color scheme (signature red background)
+- Smooth transitions and animations
+- Loading screen with rotating art facts
+- Clear visual feedback for correct/incorrect answers
+
+### Game Mechanics
+
+- Image deblurring on correct guesses
+- Multiple choice options
+- Clue system showing artwork location/department
+- Sticky answer panel for better user experience
+
+### Additional Features
+
+1. **Dynamic Loading Screen**
+
+   - Displays interesting art facts while loading
+   - Explains API response times
+   - Maintains user engagement during loading periods
+
+2. **Adaptive Layout**
+
+   - Responsive design for all screen sizes
+   - Optimized image display for various artwork dimensions
+   - Side-panel answer system for better visibility
+
+3. **Visual Feedback**
+
+   - Color-coded responses for correct/incorrect answers
+   - Progressive image reveal system
+   - Lives display with themed hearts
+   - Score tracking
+
+4. **Game Settings**
+   - Customizable difficulty levels
+   - Adjustable game parameters
+   - Various artwork categories and time periods
+
+## Future Enhancements
+
+- User accounts and high scores
+- Social sharing features
+- Additional game modes
+- Achievement system
+- Detailed artwork information after each round
+- Custom difficulty settings
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Acknowledgments
+
+- The Metropolitan Museum of Art for providing the open API
+- Professor Liddle

@@ -1,104 +1,86 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import GamePlay from "./components/GamePlay";
+import { getRandomArtwork } from "./services/metAPIService";
+import { ArtObject } from "./types";
+import HomePage from "./components/HomePage";
 
 // Simple Home component
-const Home: React.FC = () => (
-  <div className="min-h-screen bg-red-600 text-white">
-    <div className="container mx-auto px-4 py-12 max-w-2xl text-center">
-      <h1 className="text-4xl font-serif mb-12">How keen is your eye?</h1>
+const Home: React.FC = () => {
+  const [randomArtwork, setRandomArtwork] = useState<ArtObject | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-      <div className="bg-white rounded-lg p-8 mb-12 aspect-square flex items-center justify-center">
-        <p className="text-black text-xl">random portrait</p>
-      </div>
+  const loadRandomArtwork = async () => {
+    try {
+      const artwork = await getRandomArtwork({
+        difficulty: "medium",
+        medium: null,
+        country: null,
+        yearStart: null,
+        yearEnd: null,
+      });
+      setRandomArtwork(artwork);
+    } catch (error) {
+      console.error("Error loading random artwork:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      <div className="flex justify-center mb-8">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-          <h2 className="text-black font-serif mb-4">Rules of the Game:</h2>
-          <ol className="text-left text-black space-y-2">
-            <li>
-              1. You have to guess the artwork based on the colors and bits that
-              are exposed.
-            </li>
-            <li>2. You'll have three tries until you're out</li>
-            <li>3. The more you guess, the longer your streak</li>
-          </ol>
-        </div>
-      </div>
+  useEffect(() => {
+    loadRandomArtwork();
+    // Set up interval to change artwork every 3 seconds
+    const interval = setInterval(loadRandomArtwork, 3000);
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
-      <Link
-        to="/play"
-        className="inline-block bg-black text-white py-3 px-12 rounded-full hover:bg-gray-900 transition"
-      >
-        play now
-      </Link>
-    </div>
-  </div>
-);
+  return (
+    <div className="min-h-screen bg-red-600 text-white">
+      <div className="container mx-auto px-4 py-12 max-w-6xl text-center">
+        <h1 className="text-4xl font-serif mb-12">How keen is your eye?</h1>
 
-// About page component
-const About: React.FC = () => (
-  <div className="min-h-screen bg-red-600 text-white">
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-serif mb-4">select your game mode</h1>
-      </div>
+        <div className="flex justify-center items-start gap-8 mb-12">
+          <div className="bg-white rounded-lg p-8 w-96 aspect-square flex items-center justify-center overflow-hidden">
+            {isLoading ? (
+              <p className="text-black text-xl">Loading...</p>
+            ) : randomArtwork ? (
+              <img
+                src={randomArtwork.primaryImage}
+                alt="Random artwork from The Met"
+                className="w-full h-full object-contain transition-opacity duration-500"
+                style={{ opacity: isLoading ? 0 : 1 }}
+              />
+            ) : (
+              <p className="text-black text-xl">Failed to load artwork</p>
+            )}
+          </div>
 
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <label className="text-xl">level:</label>
-          <div className="w-64">
-            <select className="w-full p-2 rounded-lg bg-white text-black">
-              <option>Easy</option>
-              <option>Medium</option>
-              <option>Hard</option>
-            </select>
+          <div className="bg-white rounded-lg p-8 w-96 aspect-square flex items-center justify-center">
+            <div className="text-center text-black space-y-4">
+              <h2 className="font-serif mb-4">Rules of the Game:</h2>
+              <ol className="space-y-2">
+                <li>
+                  1. You have to guess the artwork based on the colors and bits
+                  that are exposed.
+                </li>
+                <li>2. You'll have three tries until you're out</li>
+                <li>3. The more you guess, the longer your streak</li>
+              </ol>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="text-xl">mediums:</label>
-          <div className="w-64">
-            <select className="w-full p-2 rounded-lg bg-white text-black">
-              <option>All</option>
-              <option>Paintings</option>
-              <option>Sculptures</option>
-              <option>Photographs</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="text-xl">artist's country:</label>
-          <div className="w-64">
-            <select className="w-full p-2 rounded-lg bg-white text-black">
-              <option>All</option>
-              <option>France</option>
-              <option>Italy</option>
-              <option>Netherlands</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="text-xl">years:</label>
-          <div className="w-64">
-            <input type="range" className="w-full" min="1400" max="2023" />
-          </div>
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/play"
-            className="inline-block bg-black text-white py-3 px-12 rounded-full hover:bg-gray-900 transition"
-          >
-            play now
-          </Link>
-        </div>
+        <Link
+          to="/play"
+          className="inline-block bg-black text-white py-3 px-12 rounded-full hover:bg-gray-900 transition"
+        >
+          play now
+        </Link>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Main App component
 const App: React.FC = () => {
@@ -113,11 +95,6 @@ const App: React.FC = () => {
             <nav>
               <ul className="flex space-x-6">
                 <li>
-                  <Link to="/about" className="hover:underline">
-                    ABOUT
-                  </Link>
-                </li>
-                <li>
                   <Link to="/play" className="hover:underline">
                     PLAY
                   </Link>
@@ -129,9 +106,8 @@ const App: React.FC = () => {
 
         <main>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/play" element={<GamePlay />} />
-            <Route path="/about" element={<About />} />
           </Routes>
         </main>
       </div>

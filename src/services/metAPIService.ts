@@ -1,64 +1,72 @@
-import axios from 'axios';
-import { ArtObject, GameSettings } from '../types';
+import axios from "axios";
+import { ArtObject, GameSettings, MetAPIResponse } from "../types";
 
-const BASE_URL = 'https://collectionapi.metmuseum.org/public/collection/v1';
+const BASE_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
 
-// Function to get a random artwork based on filters
-export const getRandomArtwork = async (settings: GameSettings): Promise<ArtObject | null> => {
+// Helper function to get a random item from an array
+const getRandomItem = <T>(array: T[]): T => {
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+// Function to get a random artwork based on game settings
+export const getRandomArtwork = async (
+  settings: GameSettings
+): Promise<ArtObject> => {
   try {
-    // Start with a basic search query
-    let searchQuery = 'hasImages=true';
-    
-    // Add medium filter if selected
+    // Build search parameters based on settings
+    const searchParams = new URLSearchParams();
+    searchParams.append("hasImages", "true"); // Only get objects with images
+
     if (settings.medium) {
-      searchQuery += `&medium=${encodeURIComponent(settings.medium)}`;
+      searchParams.append("medium", settings.medium);
     }
-    
-    // Add country filter if selected
+
     if (settings.country) {
-      searchQuery += `&geoLocation=${encodeURIComponent(settings.country)}`;
+      searchParams.append("geoLocation", settings.country);
     }
-    
-    // Add date range if selected
+
     if (settings.yearStart && settings.yearEnd) {
-      searchQuery += `&dateBegin=${settings.yearStart}&dateEnd=${settings.yearEnd}`;
+      searchParams.append("dateBegin", settings.yearStart.toString());
+      searchParams.append("dateEnd", settings.yearEnd.toString());
     }
-    
-    // Get object IDs matching our criteria
-    const response = await axios.get(`${BASE_URL}/search?${searchQuery}`);
-    
-    if (response.data.total === 0 || !response.data.objectIDs) {
-      console.error('No artworks found matching criteria');
-      return null;
+
+    // Get list of object IDs matching the criteria
+    const searchResponse = await axios.get<MetAPIResponse>(
+      `${BASE_URL}/search?${searchParams.toString()}&q=*`
+    );
+
+    if (!searchResponse.data.total || !searchResponse.data.objectIDs?.length) {
+      throw new Error("No artworks found matching the criteria");
     }
-    
-    // Select a random object ID from the results
-    const randomIndex = Math.floor(Math.random() * response.data.objectIDs.length);
-    const objectId = response.data.objectIDs[randomIndex];
-    
-    // Get the details for this object
-    const objectResponse = await axios.get(`${BASE_URL}/objects/${objectId}`);
-    
-    // Return object only if it has a primary image
-    if (objectResponse.data.primaryImage) {
-      return objectResponse.data;
-    } else {
-      // Recursively try again if this object doesn't have an image
+
+    // Get a random object ID from the results
+    const randomObjectId = getRandomItem(searchResponse.data.objectIDs);
+
+    // Get the full details of the random artwork
+    const objectResponse = await axios.get<ArtObject>(
+      `${BASE_URL}/objects/${randomObjectId}`
+    );
+
+    // Ensure the artwork has a primary image
+    if (!objectResponse.data.primaryImage) {
+      // If no image, try again recursively
       return getRandomArtwork(settings);
     }
+
+    return objectResponse.data;
   } catch (error) {
-    console.error('Error fetching artwork:', error);
-    return null;
+    console.error("Error fetching random artwork:", error);
+    throw error;
   }
 };
 
-// Function to get departments/categories for filtering options
-export const getDepartments = async (): Promise<string[]> => {
+// Function to get departments
+export const getDepartments = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/departments`);
-    return response.data.departments.map((dept: any) => dept.displayName);
+    return response.data.departments;
   } catch (error) {
-    console.error('Error fetching departments:', error);
-    return [];
+    console.error("Error fetching departments:", error);
+    throw error;
   }
 };
